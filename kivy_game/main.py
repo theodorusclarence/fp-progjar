@@ -199,13 +199,6 @@ class Enemy(Entity):
             game.remove_entity(self)
             game.score -= 1
             return
-        for e in game.colliding_entities(self):
-            if e == game.player:
-                game.add_entity(Explosion(self.pos))
-                self.stop_callbacks()
-                game.remove_entity(self)
-                game.score -= 1
-                return
 
         # move
         step_size = self._speed * dt
@@ -270,10 +263,10 @@ class Player(Entity):
 
 
 game = GameWidget()
-game.player = Player()
-game.player.user = 0
-game.player.pos = (Window.width/3, 0)
-game.add_entity(game.player)
+player1 = Player()
+player1.user = 0
+player1.pos = (Window.width/3, 0)
+game.add_entity(player1)
 
 player2 = Player()
 player2.user = 1
