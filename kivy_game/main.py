@@ -24,7 +24,7 @@ class GameWidget(Widget):
         self.register_event_type("on_frame")
 
         with self.canvas:
-            Rectangle(source="assets/background.png", pos=(0, 0),
+            Rectangle(source="assets/bg-mario.jpg", pos=(0, 0),
                       size=(Window.width, Window.height))
             self._score_instruction = Rectangle(texture=self._score_label.texture, pos=(
                 0, Window.height - 50), size=self._score_label.texture.size)
@@ -152,7 +152,7 @@ class Bullet(Entity):
         # sound.play()
         self._speed = speed
         self.pos = pos
-        self.source = "assets/bullet.png"
+        self.source = "assets/bulletbil.png"
         game.bind(on_frame=self.move_step)
 
     def stop_callbacks(self):
@@ -186,7 +186,7 @@ class Enemy(Entity):
         super().__init__()
         self._speed = speed
         self.pos = pos
-        self.source = "assets/bomb.png"
+        self.source = "assets/boo.png"
         game.bind(on_frame=self.move_step)
 
     def stop_callbacks(self):
@@ -233,7 +233,7 @@ done = False
 class Player(Entity):
     def __init__(self):
         super().__init__()
-        self.source = "assets/player.png"
+        self.source = "assets/pipe.png"
         game.bind(on_frame=self.move_step)
         self._shoot_event = Clock.schedule_interval(self.shoot_step, 0.5)
         self.pos = (400, 0)
