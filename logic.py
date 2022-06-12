@@ -4,7 +4,7 @@ import base64
 from glob import glob
 import shelve
 import random
-
+import datetime
 
 #asumsi, hanya ada player 1, 2 , 3
 class PlayerServerInterface:
@@ -12,6 +12,10 @@ class PlayerServerInterface:
         self.players = shelve.open('g.db',writeback=True)
         self.players['1']= "400,0"
         self.players['2']= "100,0"
+        self.prev_time = datetime.datetime.now()
+        self.random_x = random.randint(0, 800)
+        self.random_speed = random.randint(100, 300)
+
 
     def set_location(self,params=[]):
         pnum = params[0]
@@ -33,10 +37,12 @@ class PlayerServerInterface:
             return dict(status='ERROR')
 
     def get_enemy_location(self,params=[]):
-        random_x = random.randint(0, 800)
-        random_speed = random.randint(100, 300)
+        if(self.prev_time.second < datetime.datetime.now().second):
+            self.random_x = random.randint(0, 800)
+            self.random_speed = random.randint(100, 300)
+        self.prev_time = datetime.datetime.now()
         try:
-            return dict(status='OK',random_x=random_x,random_speed=random_speed)
+            return dict(status='OK',random_x=self.random_x,random_speed=self.random_speed)
         except Exception as ee:
             return dict(status='ERROR')
 

@@ -13,7 +13,7 @@ import json
 
 import datetime
 
-player = 0
+player = 1
 
 class ClientInterface:
     def __init__(self,idplayer='1'):
@@ -91,6 +91,8 @@ class GameWidget(Widget):
         self.server_address=('localhost',6666)
         self.client_interface = ClientInterface(2)
 
+        self.prev_time = datetime.datetime.now().second
+
         self._keyboard = Window.request_keyboard(
             self._on_keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_key_down)
@@ -116,18 +118,22 @@ class GameWidget(Widget):
         self.sound = SoundLoader.load("assets/music.wav")
         # self.sound.play()
 
-        Clock.schedule_interval(self.spawn_enemies, 2)
+        Clock.schedule_interval(self.spawn_enemies, 0.1)
 
     def spawn_enemies(self, dt):
-        for i in range(5):
-            enemy = self.client_interface.get_enemy_location()
-            if(enemy is False):
-                print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-                continue
-            random_x, random_speed = enemy
-            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-            y = Window.height
-            self.add_entity(Enemy((random_x, y), random_speed))
+        # for i in range(5):
+        if(self.prev_time == datetime.datetime.now().second):
+            return
+        self.prev_time = datetime.datetime.now().second
+        print("masuukkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+        enemy = self.client_interface.get_enemy_location()
+        if(enemy is False):
+            print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+            return
+        random_x, random_speed = enemy
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        y = Window.height
+        self.add_entity(Enemy((random_x, y), random_speed))
 
     def _on_frame(self, dt):
         self.dispatch("on_frame", dt)
@@ -317,7 +323,7 @@ class Player(Entity):
         self.user = id
 
         self.server_address=('localhost',6666)
-        self.client_interface = ClientInterface(2)
+        self.client_interface = ClientInterface(player)
 
     def stop_callbacks(self):
         game.unbind(on_frame=self.move_step)
