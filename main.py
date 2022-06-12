@@ -7,10 +7,89 @@ from kivy.core.audio import SoundLoader
 from kivy.uix.label import CoreLabel
 import random
 
+import socket
+import logging
+import json
+
+import datetime
+
+player = 0
+
+class ClientInterface:
+    def __init__(self,idplayer='1'):
+        self.idplayer=idplayer
+        self.server_address=('localhost',6666)
+
+    def send_command(self,command_str=""):
+        global server_address
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(self.server_address)
+        logging.warning(f"connecting to {self.server_address}")
+        try:
+            logging.warning(f"sending message ")
+            sock.sendall(command_str.encode())
+            # Look for the response, waiting until socket is done (no more data)
+            data_received="" #empty string
+            while True:
+                #socket does not receive all data at once, data comes in part, need to be concatenated at the end of process
+                data = sock.recv(16)
+                if data:
+                    #data is not empty, concat with previous content
+                    data_received += data.decode()
+                    if "\r\n\r\n" in data_received:
+                        break
+                else:
+                    # no more data, stop the process by break
+                    break
+            # at this point, data_received (string) will contain all data coming from the socket
+            # to be able to use the data_received as a dict, need to load it using json.loads()
+            hasil = json.loads(data_received)
+            logging.warning("data received from server:")
+            return hasil
+        except:
+            logging.warning("error during data receiving")
+            return False
+
+    def set_location(self,user=1,x=100,y=0):
+        player = self.idplayer
+        command_str=f"set_location {player} {x} {y}"
+        hasil = self.send_command(command_str)
+        if (hasil['status']=='OK'):
+            return True
+        else:
+            return False
+
+    def get_location(self,id=1):
+        player = id
+        command_str=f"get_location {player}"
+        hasil = self.send_command(command_str)
+        if (hasil['status']=='OK'):
+            lokasi = hasil['location'].split(',')
+            return (float(lokasi[0]),float(lokasi[1]))
+        else:
+            return False
+
+    def get_enemy_location(self):
+        try:
+            print("OKKKKKKKKKKKKKKKK1")
+            command_str = f"get_enemy_location 0"
+            hasil = self.send_command(command_str)
+            print(hasil)
+            if(hasil['status'] =='OK'):
+                print("OKKKKKKKKKKKKKKKK")
+                return hasil['random_x'],hasil['random_speed']
+            else:
+                return hasil  
+        except Exception as ee:
+            return False
+
 
 class GameWidget(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self.server_address=('localhost',6666)
+        self.client_interface = ClientInterface(2)
 
         self._keyboard = Window.request_keyboard(
             self._on_keyboard_closed, self)
@@ -41,9 +120,13 @@ class GameWidget(Widget):
 
     def spawn_enemies(self, dt):
         for i in range(5):
-            random_x = random.randint(0, Window.width)
+            enemy = self.client_interface.get_enemy_location()
+            if(enemy is False):
+                print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+                continue
+            random_x, random_speed = enemy
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             y = Window.height
-            random_speed = random.randint(100, 300)
             self.add_entity(Enemy((random_x, y), random_speed))
 
     def _on_frame(self, dt):
@@ -224,13 +307,17 @@ done = False
 
 
 class Player(Entity):
-    def __init__(self):
+    def __init__(self,id):
         super().__init__()
         self.source = "assets/pipe.png"
         game.bind(on_frame=self.move_step)
+        game.bind(on_frame=self.update)
         self._shoot_event = Clock.schedule_interval(self.shoot_step, 0.5)
         self.pos = (400, 0)
-        self.user = 0
+        self.user = id
+
+        self.server_address=('localhost',6666)
+        self.client_interface = ClientInterface(2)
 
     def stop_callbacks(self):
         game.unbind(on_frame=self.move_step)
@@ -245,32 +332,38 @@ class Player(Entity):
     def move_step(self, sender, dt):
         # move
         step_size = 200 * dt
-        newx = self.pos[0]
-        newy = self.pos[1]
+        # tmp = self.client_interface.get_location(self.user)
+        # if(tmp is False):
+        #     return
+        newx = 0
 
-        if self.user == 0:
-            if "a" in game.keysPressed:
-                newx -= step_size
-            if "d" in game.keysPressed:
-                newx += step_size
+        if "a" in game.keysPressed:
+            newx = -2
+        if "d" in game.keysPressed:
+            newx = 2
 
-        elif self.user == 1:
-            if "j" in game.keysPressed:
-                newx -= step_size
-            if "l" in game.keysPressed:
-                newx += step_size
-        self.pos = (newx, newy)
+        # self.pos = (newx, newy)
+        self.client_interface.set_location(self.user,newx)
+        print("========================================================"+ f'{self.user} {newx}')
+        # print (f'TETETETETETE {Window.width} {Window.height}')
+        # self.update
+
+    def update(self, sender, dt):
+        tmp = self.client_interface.get_location(self.user)
+        print (f'{tmp}')
+        if(tmp is False):
+            return
+        x, y = tmp
+        self.pos = (x, y)
 
 
 game = GameWidget()
-player1 = Player()
-player1.user = 0
+player1 = Player(1)
 player1.pos = (Window.width/3, 0)
 game.add_entity(player1)
 
-player2 = Player()
-player2.user = 1
-player2.pos = (Window.width - Window.width/3, 0)
+player2 = Player(2)
+player2.pos = (600, 0)
 game.add_entity(player2)
 
 
