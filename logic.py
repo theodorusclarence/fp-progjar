@@ -12,10 +12,26 @@ class PlayerServerInterface:
         self.players = shelve.open('g.db',writeback=True)
         self.players['1']= "400,0"
         self.players['2']= "100,0"
+        self.score  = shelve.open('score.db',writeback=True)
+        self.score['1'] = "0"
         self.prev_time = datetime.datetime.now()
         self.random_x = random.randint(0, 800)
         self.random_speed = random.randint(100, 300)
 
+    def set_score(self, params=[]):
+        new_score = params[0]
+        try:
+            self.score['1'] = str(new_score)
+            self.score.sync()
+            return dict(status='OK', score=self.score)
+        except Exception as e:
+            return dict(status='ERROR')
+
+    def get_score(self,params=[]):
+        try:
+            return dict(status='OK',score=self.score['1'])
+        except Exception as ee:
+            return dict(status='ERROR')
 
     def set_location(self,params=[]):
         pnum = params[0]

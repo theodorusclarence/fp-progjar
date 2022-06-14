@@ -82,7 +82,22 @@ class ClientInterface:
                 return hasil  
         except Exception as ee:
             return False
+    
+    def get_score(self):
+        command_str = f"get_score"
+        hasil = self.send_command(command_str)
+        if(hasil['status'] =='OK'):
+            return hasil['score']
+        else:
+            return False  
 
+    def set_score(self, new_score):
+        command_str = f"set_score {new_score}"
+        hasil = self.send_command(command_str)
+        if(hasil['status'] =='OK'):
+            return hasil['score']
+        else:
+            return True  
 
 class GameWidget(Widget):
     def __init__(self, **kwargs):
@@ -98,9 +113,9 @@ class GameWidget(Widget):
         self._keyboard.bind(on_key_down=self._on_key_down)
         self._keyboard.bind(on_key_up=self._on_key_up)
 
-        self._score_label = CoreLabel(text="Score: 0", font_size=20)
+        self._score = int(self.client_interface.get_score())
+        self._score_label = CoreLabel(text=f"Score: {self._score}", font_size=20)
         self._score_label.refresh()
-        self._score = 0
 
         self.register_event_type("on_frame")
 
@@ -244,6 +259,9 @@ class Bullet(Entity):
         self.source = "assets/bulletbil.png"
         game.bind(on_frame=self.move_step)
 
+        self.server_address=('localhost',6666)
+        self.client_interface = ClientInterface(player)
+
     def stop_callbacks(self):
         game.unbind(on_frame=self.move_step)
 
@@ -260,7 +278,10 @@ class Bullet(Entity):
                 game.remove_entity(self)
                 e.stop_callbacks()
                 game.remove_entity(e)
-                game.score += 1
+                # game.score += 1
+                if(player == 1):
+                    self.client_interface.set_score(game.score+1)
+                game.score = int(self.client_interface.get_score())
                 return
 
         # move
@@ -278,6 +299,9 @@ class Enemy(Entity):
         self.source = "assets/boo.png"
         game.bind(on_frame=self.move_step)
 
+        self.server_address=('localhost',6666)
+        self.client_interface = ClientInterface(player)
+
     def stop_callbacks(self):
         game.unbind(on_frame=self.move_step)
 
@@ -286,7 +310,10 @@ class Enemy(Entity):
         if self.pos[1] < 0:
             self.stop_callbacks()
             game.remove_entity(self)
-            game.score -= 1
+            # game.score -= 1
+            if(player == 1):
+                self.client_interface.set_score(game.score+1)
+            game.score = int(self.client_interface.get_score())
             return
 
         # move
@@ -351,6 +378,7 @@ class Player(Entity):
         # self.pos = (newx, newy)
         self.client_interface.set_location(self.user,newx)
         print("========================================================"+ f'{self.user} {newx}')
+        # print(self.client_interface.get_score())
         # print (f'TETETETETETE {Window.width} {Window.height}')
         # self.update
 
