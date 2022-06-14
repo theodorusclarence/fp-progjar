@@ -39,3 +39,24 @@ get_enemy_location
         - data: lokasi Boo (x, y) dan kecepatan Boo
     - GAGAL:
         - status: ERROR
+
+get_score
+* TUJUAN: untuk mendapatkan jumlah score
+* PARAMETER: tidak ada
+* RESULT:
+    - BERHASIL:
+        - status: OK
+        - data: jumlah score
+    - GAGAL:
+        - status: ERROR
+
+set_score
+* TUJUAN: untuk mengubah jumlah score
+* PARAMETER: 
+    - 0: jumlah score yang baru
+* RESULT:
+    - BERHASIL:
+        - status: OK
+        - data: jumlah score yang baru
+    - GAGAL:
+        - status: ERROR
