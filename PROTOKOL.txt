@@ -1,0 +1,41 @@
+BOO INVADER
+TUJUAN: melayani client dalam request file server
+
+ATURAN PROTOKOL:
+- client harus mengirimkan request dalam bentuk string
+- string harus dalam format
+  REQUEST spasi PARAMETER
+- PARAMETER dapat berkembang menjadi PARAMETER1 spasi PARAMETER2 dan seterusnya
+
+get_location
+* TUJUAN: untuk mendapatkan posisi player
+* PARAMETER: index player
+* RESULT:
+    - BERHASIL:
+        - status: OK
+        - data: lokasi player (x, y)
+    - GAGAL:
+        - status: ERROR
+
+set_location
+* TUJUAN: untuk memindahkan posisi player
+* PARAMETER: 
+    - 0: index player
+    - 1: lokasi x
+    - 2: lokasi y
+* RESULT:
+    - BERHASIL:
+        - status: OK
+        - data: index player
+    - GAGAL:
+        - status: ERROR
+
+get_enemy_location
+* TUJUAN: untuk mendapatkan posisi dan kecepatan Boo 
+* PARAMETER: tidak ada
+* RESULT:
+    - BERHASIL:
+        - status: OK
+        - data: lokasi Boo (x, y) dan kecepatan Boo
+    - GAGAL:
+        - status: ERROR
