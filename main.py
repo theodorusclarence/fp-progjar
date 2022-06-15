@@ -3,7 +3,7 @@ from kivy.uix.widget import Widget
 from kivy.graphics import Rectangle
 from kivy.core.window import Window
 from kivy.clock import Clock
-from kivy.core.audio import SoundLoader
+# from kivy.core.audio import SoundLoader
 from kivy.uix.label import CoreLabel
 import random
 
@@ -13,12 +13,12 @@ import json
 
 import datetime
 
-player = 1
+player = 2
 
 class ClientInterface:
     def __init__(self,idplayer='1'):
         self.idplayer=idplayer
-        self.server_address=('localhost',6666)
+        self.server_address=('0.0.0.0',6666)
 
     def send_command(self,command_str=""):
         global server_address
@@ -103,7 +103,7 @@ class GameWidget(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.server_address=('localhost',6666)
+        self.server_address=('0.0.0.0',6666)
         self.client_interface = ClientInterface(2)
 
         self.prev_time = datetime.datetime.now().second
@@ -130,7 +130,7 @@ class GameWidget(Widget):
 
         Clock.schedule_interval(self._on_frame, 0)
 
-        self.sound = SoundLoader.load("assets/music.wav")
+        # self.sound = SoundLoader.load("assets/music.wav")
         # self.sound.play()
 
         Clock.schedule_interval(self.spawn_enemies, 0.1)
@@ -252,14 +252,14 @@ class Entity(object):
 class Bullet(Entity):
     def __init__(self, pos, speed=300):
         super().__init__()
-        sound = SoundLoader.load("assets/bullet.wav")
+        # sound = SoundLoader.load("assets/bullet.wav")
         # sound.play()
         self._speed = speed
         self.pos = pos
         self.source = "assets/bulletbil.png"
         game.bind(on_frame=self.move_step)
 
-        self.server_address=('localhost',6666)
+        self.server_address=('0.0.0.0',6666)
         self.client_interface = ClientInterface(player)
 
     def stop_callbacks(self):
@@ -299,7 +299,7 @@ class Enemy(Entity):
         self.source = "assets/boo.png"
         game.bind(on_frame=self.move_step)
 
-        self.server_address=('localhost',6666)
+        self.server_address=('0.0.0.0',6666)
         self.client_interface = ClientInterface(player)
 
     def stop_callbacks(self):
@@ -312,7 +312,7 @@ class Enemy(Entity):
             game.remove_entity(self)
             # game.score -= 1
             if(player == 1):
-                self.client_interface.set_score(game.score+1)
+                self.client_interface.set_score(game.score-1)
             game.score = int(self.client_interface.get_score())
             return
 
@@ -327,7 +327,7 @@ class Explosion(Entity):
     def __init__(self, pos):
         super().__init__()
         self.pos = pos
-        sound = SoundLoader.load("assets/explosion.wav")
+        # sound = SoundLoader.load("assets/explosion.wav")
         self.source = "assets/explosion.png"
         # sound.play()
         Clock.schedule_once(self._remove_me, 0.1)
@@ -349,7 +349,7 @@ class Player(Entity):
         self.pos = (400, 0)
         self.user = id
 
-        self.server_address=('localhost',6666)
+        self.server_address=('0.0.0.0',6666)
         self.client_interface = ClientInterface(player)
 
     def stop_callbacks(self):
