@@ -14,11 +14,12 @@ import json
 import datetime
 
 player = 2
+address = '0.0.0.0'
 
 class ClientInterface:
     def __init__(self,idplayer='1'):
         self.idplayer=idplayer
-        self.server_address=('0.0.0.0',6666)
+        self.server_address=(address,6666)
 
     def send_command(self,command_str=""):
         global server_address
@@ -103,7 +104,7 @@ class GameWidget(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.server_address=('0.0.0.0',6666)
+        self.server_address=(address,6666)
         self.client_interface = ClientInterface(2)
 
         self.prev_time = datetime.datetime.now().second
@@ -259,7 +260,7 @@ class Bullet(Entity):
         self.source = "assets/bulletbil.png"
         game.bind(on_frame=self.move_step)
 
-        self.server_address=('0.0.0.0',6666)
+        self.server_address=(address,6666)
         self.client_interface = ClientInterface(player)
 
     def stop_callbacks(self):
@@ -299,7 +300,7 @@ class Enemy(Entity):
         self.source = "assets/boo.png"
         game.bind(on_frame=self.move_step)
 
-        self.server_address=('0.0.0.0',6666)
+        self.server_address=(address,6666)
         self.client_interface = ClientInterface(player)
 
     def stop_callbacks(self):
@@ -349,7 +350,7 @@ class Player(Entity):
         self.pos = (400, 0)
         self.user = id
 
-        self.server_address=('0.0.0.0',6666)
+        self.server_address=(address,6666)
         self.client_interface = ClientInterface(player)
 
     def stop_callbacks(self):

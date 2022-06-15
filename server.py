@@ -8,6 +8,7 @@ import sys
 
 from  protocol import PlayerServerProtocol
 fp = PlayerServerProtocol()
+address = '0.0.0.0'
 
 
 class ProcessTheClient(threading.Thread):
@@ -30,7 +31,7 @@ class ProcessTheClient(threading.Thread):
 
 
 class Server(threading.Thread):
-    def __init__(self,ipaddress='localhost',port=8889):
+    def __init__(self,ipaddress=address,port=8889):
         self.ipinfo=(ipaddress,port)
         self.the_clients = []
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -51,7 +52,7 @@ class Server(threading.Thread):
 
 
 def main():
-    svr = Server(ipaddress='localhost',port=6666)
+    svr = Server(ipaddress=address,port=6666)
     svr.start()
 
 
